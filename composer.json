@@ -1,0 +1,29 @@
+{
+    "name": "sparkphp/:package",
+    "description": ":description",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Spark Contributors",
+            "homepage": "https://github.com/sparkphp"
+        }
+    ],
+    "require": {
+        "php": ">=5.5"
+    },
+    "require-dev": {
+        "satooshi/php-coveralls": "^0.6",
+        "phpunit/phpunit": "4.8 - 5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Spark\\:namespace\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SparkTests\\:namespace\\": "tests/"
+        }
+    }
+}
