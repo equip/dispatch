@@ -8,6 +8,8 @@
 
 An HTTP Interop compatible middleware dispatcher in [Equip](http://equip.github.io/).
 Attempts to be [PSR-1](http://www.php-fig.org/psr/psr-1/), [PSR-2](http://www.php-fig.org/psr/psr-2/),
-and [PSR-4](http://www.php-fig.org/psr/psr-4/) compliant.
+[PSR-4](http://www.php-fig.org/psr/psr-4/), and [PSR-7](http://www.php-fig.org/psr/psr-7/) compliant.
+
+Heavily influenced by the design of [Tari by ircmaxwell](https://github.com/ircmaxell/Tari-PHP).
 
 For more information, see [the documentation](http://equipframework.readthedocs.org/en/latest/dispatch).
