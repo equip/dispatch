@@ -9,15 +9,22 @@ use Psr\Http\Message\ServerRequestInterface;
 class Stack
 {
     /**
+     * @var callable
+     */
+    private $default;
+
+    /**
      * @var array
      */
     private $middleware = [];
 
     /**
+     * @param callable $default to call when no middleware is available
      * @param array $middleware
      */
-    public function __construct(array $middleware = [])
+    public function __construct(callable $default, ...$middleware)
     {
+        $this->default = $default;
         array_map([$this, 'append'], $middleware);
     }
 
@@ -49,13 +56,12 @@ class Stack
      * Dispatch the middleware stack.
      *
      * @param ServerRequestInterface $request
-     * @param callable $default to call when no middleware is available
      *
      * @return ResponseInterface
      */
-    public function dispatch(ServerRequestInterface $request, callable $default)
+    public function dispatch(ServerRequestInterface $request)
     {
-        $delegate = new Delegate($this->middleware, $default);
+        $delegate = new Delegate($this->middleware, $this->default);
 
         return $delegate->process($request);
     }

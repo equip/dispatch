@@ -18,8 +18,8 @@ class StackTest extends TestCase
         $default = $this->defaultReturnsResponse($response);
 
         // Run
-        $stack = new Stack();
-        $output = $stack->dispatch($request, $default);
+        $stack = new Stack($default);
+        $output = $stack->dispatch($request);
 
         // Verify
         $this->assertSame($response, $output);
@@ -51,7 +51,7 @@ class StackTest extends TestCase
         }, $mocks);
 
         // Run
-        $stack = new Stack($middleware, $default);
+        $stack = new Stack($default, ...$middleware);
         $output = $stack->dispatch($request, $default);
 
         // Verify
@@ -73,7 +73,7 @@ class StackTest extends TestCase
         $three = Phony::mock(ServerMiddlewareInterface::class)->get();
 
         // Run
-        $stack = new Stack([$one], $default);
+        $stack = new Stack($default, $one);
         $accessible_stack = Liberator::liberate($stack);
 
         // Verify
