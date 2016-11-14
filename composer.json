@@ -1,6 +1,6 @@
 {
-    "name": "equip/:package",
-    "description": ":description",
+    "name": "equip/dispatch",
+    "description": "An HTTP Interop compatible middleware dispatcher",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -10,19 +10,19 @@
         }
     ],
     "require": {
-        "php": ">=5.5"
+        "php": ">=5.6"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.8|^5.0"
     },
     "autoload": {
         "psr-4": {
-            "Equip\\:namespace\\": "src/"
+            "Equip\\Dispatch\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "EquipTests\\:namespace\\": "tests/"
+            "Equip\\Dispatch\\": "tests/"
         }
     }
 }
