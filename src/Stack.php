@@ -11,14 +11,14 @@ class Stack
     /**
      * @var array
      */
-    private $middleware;
+    private $middleware = [];
 
     /**
      * @param array $middleware
      */
     public function __construct(array $middleware = [])
     {
-        $this->middleware = $middleware;
+        array_map([$this, 'append'], $middleware);
     }
 
     /**
