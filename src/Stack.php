@@ -17,7 +17,7 @@ class Stack implements ServerMiddlewareInterface
     /**
      * @param array $middleware
      */
-    public function __construct(...$middleware)
+    public function __construct(array $middleware = [])
     {
         array_map([$this, 'append'], $middleware);
     }
