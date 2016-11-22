@@ -2,11 +2,12 @@
 
 namespace Equip\Dispatch;
 
+use Interop\Http\Middleware\DelegateInterface;
 use Interop\Http\Middleware\ServerMiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\RequestInterface;
 
-class Stack
+class Stack implements DelegateInterface
 {
     /**
      * @var callable
@@ -17,6 +18,11 @@ class Stack
      * @var array
      */
     private $middleware = [];
+
+    /**
+     * @var integer
+     */
+    private $index = 0;
 
     /**
      * @param callable $default to call when no middleware is available
@@ -53,16 +59,43 @@ class Stack
     }
 
     /**
-     * Dispatch the middleware stack.
+     * Process the request using the current middleware.
      *
-     * @param ServerRequestInterface $request
+     * @param RequestInterface $request
      *
      * @return ResponseInterface
      */
-    public function dispatch(ServerRequestInterface $request)
+    public function process(RequestInterface $request)
     {
-        $delegate = new Delegate($this->middleware, $this->default);
+        if (empty($this->middleware[$this->index])) {
+            return call_user_func($this->default, $request);
+        }
 
-        return $delegate->process($request);
+        return $this->middleware[$this->index]->process($request, $this->nextDelegate());
+    }
+
+    /**
+     * Get a delegate pointing to the next middleware.
+     *
+     * @return static
+     */
+    private function nextDelegate()
+    {
+        $copy = clone $this;
+        $copy->index++;
+
+        return $copy;
+    }
+
+    /**
+     * Dispatch the middleware stack.
+     *
+     * @param RequestInterface $request
+     *
+     * @return ResponseInterface
+     */
+    public function dispatch(RequestInterface $request)
+    {
+        return $this->process($request);
     }
 }
