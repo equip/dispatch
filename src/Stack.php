@@ -51,13 +51,13 @@ class Stack implements ServerMiddlewareInterface
      * to the next middleware component to create the response.
      *
      * @param ServerRequestInterface $request
-     * @param DelegateInterface $nextContanierDelegate
+     * @param DelegateInterface $nextContainerDelegate
      *
      * @return ResponseInterface
      */
-    public function process(ServerRequestInterface $request, DelegateInterface $nextContanierDelegate)
+    public function process(ServerRequestInterface $request, DelegateInterface $nextContainerDelegate)
     {
-        $delegate = new Delegate($this->middleware, new DelegateToCallableAdapter($nextContanierDelegate));
+        $delegate = new Delegate($this->middleware, new DelegateToCallableAdapter($nextContainerDelegate));
 
         return $delegate->process($request);
     }
