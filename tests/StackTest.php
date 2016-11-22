@@ -18,8 +18,8 @@ class StackTest extends TestCase
         $default = $this->defaultReturnsResponse($response);
 
         // Run
-        $stack = new Stack();
-        $output = $stack->dispatch($request, $default);
+        $stack = new Stack([], $default);
+        $output = $stack->dispatch($request);
 
         // Verify
         $this->assertSame($response, $output);
@@ -52,7 +52,7 @@ class StackTest extends TestCase
 
         // Run
         $stack = new Stack($middleware, $default);
-        $output = $stack->dispatch($request, $default);
+        $output = $stack->dispatch($request);
 
         // Verify
         Phony::inOrder(
