@@ -18,8 +18,8 @@ class StackTest extends TestCase
         $default = $this->defaultReturnsResponse($response);
 
         // Run
-        $stack = new Stack($default);
-        $output = $stack->dispatch($request);
+        $stack = new Stack();
+        $output = $stack->dispatch($request, $default);
 
         // Verify
         $this->assertSame($response, $output);
@@ -51,7 +51,7 @@ class StackTest extends TestCase
         }, $mocks);
 
         // Run
-        $stack = new Stack($default, ...$middleware);
+        $stack = new Stack(...$middleware);
         $output = $stack->dispatch($request, $default);
 
         // Verify
@@ -73,7 +73,7 @@ class StackTest extends TestCase
         $three = Phony::mock(ServerMiddlewareInterface::class)->get();
 
         // Run
-        $stack = new Stack($default, $one);
+        $stack = new Stack($one);
         $accessible_stack = Liberator::liberate($stack);
 
         // Verify
@@ -91,6 +91,59 @@ class StackTest extends TestCase
 
         // Verify
         $this->assertSame([$three, $one, $two], $accessible_stack->middleware);
+    }
+
+    public function testStackAsMiddleware()
+    {
+        $request = $this->mockRequest();
+        $response = $this->mockResponse();
+        $default = $this->defaultReturnsResponse($response);
+
+        // Add process() implementation to middleware mocks
+        $process = function ($request, $delegate) {
+            return $delegate->process($request);
+        };
+
+        $mocks = array_map(function ($mock) use ($process) {
+            $mock->process->does($process);
+            return $mock;
+        }, [
+            Phony::mock(ServerMiddlewareInterface::class),
+            Phony::mock(ServerMiddlewareInterface::class),
+            Phony::mock(ServerMiddlewareInterface::class),
+            Phony::mock(ServerMiddlewareInterface::class),
+            Phony::mock(ServerMiddlewareInterface::class),
+            Phony::mock(ServerMiddlewareInterface::class),
+        ]);
+
+        // Realize middleware mocks
+        $middleware = array_map(function ($middleware) {
+            return $middleware->get();
+        }, $mocks);
+
+        $stack = new Stack(...[
+            $middleware[0],
+            $middleware[1],
+            new Stack(...[
+                $middleware[2],
+                $middleware[3],
+            ]),
+            $middleware[4],
+            $middleware[5],
+        ]);
+
+        // Run
+        $output = $stack->dispatch($request, $default);
+
+        // Verify
+        Phony::inOrder(
+            $mocks[0]->process->calledWith($request, '~'),
+            $mocks[1]->process->calledWith($request, '~'),
+            $mocks[2]->process->calledWith($request, '~'),
+            $mocks[3]->process->calledWith($request, '~'),
+            $mocks[4]->process->calledWith($request, '~'),
+            $mocks[5]->process->calledWith($request, '~')
+        );
     }
 
     /**

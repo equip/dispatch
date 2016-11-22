@@ -2,29 +2,23 @@
 
 namespace Equip\Dispatch;
 
+use Interop\Http\Middleware\DelegateInterface;
 use Interop\Http\Middleware\ServerMiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class Stack
+class Stack implements ServerMiddlewareInterface
 {
-    /**
-     * @var callable
-     */
-    private $default;
-
     /**
      * @var array
      */
     private $middleware = [];
 
     /**
-     * @param callable $default to call when no middleware is available
      * @param array $middleware
      */
-    public function __construct(callable $default, ...$middleware)
+    public function __construct(...$middleware)
     {
-        $this->default = $default;
         array_map([$this, 'append'], $middleware);
     }
 
@@ -53,15 +47,32 @@ class Stack
     }
 
     /**
-     * Dispatch the middleware stack.
+     * Process an incoming server request and return a response, optionally delegating
+     * to the next middleware component to create the response.
      *
      * @param ServerRequestInterface $request
+     * @param DelegateInterface $nextContanierDelegate
      *
      * @return ResponseInterface
      */
-    public function dispatch(ServerRequestInterface $request)
+    public function process(ServerRequestInterface $request, DelegateInterface $nextContanierDelegate)
     {
-        $delegate = new Delegate($this->middleware, $this->default);
+        $delegate = new Delegate($this->middleware, new DelegateToCallableAdapter($nextContanierDelegate));
+
+        return $delegate->process($request);
+    }
+
+    /**
+     * Dispatch the middleware stack.
+     *
+     * @param ServerRequestInterface $request
+     * @param callable $default to call when no middleware is available
+     *
+     * @return ResponseInterface
+     */
+    public function dispatch(ServerRequestInterface $request, callable $default)
+    {
+        $delegate = new Delegate($this->middleware, $default);
 
         return $delegate->process($request);
     }

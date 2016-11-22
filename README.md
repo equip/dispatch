@@ -50,9 +50,9 @@ $default = function (RequestInterface $request) {
     return new Response();
 };
 
-$stack = new Stack($default, ...$middleware);
+$stack = new Stack(...$middleware);
 
 // Any implementation of PSR-7 ServerRequestInterface
 $request = ServerRequest::fromGlobals();
-$response = $stack->dispatch($request);
+$response = $stack->dispatch($request, $default);
 ```
