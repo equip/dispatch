@@ -7,7 +7,7 @@ use Interop\Http\Middleware\ServerMiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class Stack implements ServerMiddlewareInterface
+class MiddlewarePipe implements ServerMiddlewareInterface
 {
     /**
      * @var array
@@ -47,22 +47,6 @@ class Stack implements ServerMiddlewareInterface
     }
 
     /**
-     * Process an incoming server request and return a response, optionally delegating
-     * to the next middleware component to create the response.
-     *
-     * @param ServerRequestInterface $request
-     * @param DelegateInterface $nextContainerDelegate
-     *
-     * @return ResponseInterface
-     */
-    public function process(ServerRequestInterface $request, DelegateInterface $nextContainerDelegate)
-    {
-        $delegate = new Delegate($this->middleware, new DelegateToCallableAdapter($nextContainerDelegate));
-
-        return $delegate->process($request);
-    }
-
-    /**
      * Dispatch the middleware stack.
      *
      * @param ServerRequestInterface $request
@@ -72,6 +56,17 @@ class Stack implements ServerMiddlewareInterface
      */
     public function dispatch(ServerRequestInterface $request, callable $default)
     {
+        $delegate = new Delegate($this->middleware, $default);
+
+        return $delegate->process($request);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function process(ServerRequestInterface $request, DelegateInterface $nextContainerDelegate)
+    {
+        $default = new DelegateProxy($nextContainerDelegate);
         $delegate = new Delegate($this->middleware, $default);
 
         return $delegate->process($request);

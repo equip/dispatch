@@ -1,11 +1,12 @@
 <?php
+
 namespace Equip\Dispatch;
 
 use Interop\Http\Middleware\DelegateInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class DelegateToCallableAdapter
+class DelegateProxy
 {
     /**
      * @var DelegateInterface
