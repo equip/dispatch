@@ -23,20 +23,20 @@ composer require equip/dispatch
 
 ## Usage
 
-The `Stack` is a container for middleware that acts as the entry point. It takes
+The `MiddlewarePipe` is a container for middleware that acts as the entry point. It takes
 two arguments:
 
 - An array of `$middleware` which must be instances of server middleware.
-- A callable `$default` that acts as the terminator for the stack and returns
+- A callable `$default` that acts as the terminator for the pipe and returns
   an empty response.
 
-Once the stack is prepared it can dispatched with a server request and will return
+Once the pipe is prepared it can dispatched with a server request and will return
 the response for output.
 
 ### Example
 
 ```php
-use Equip\Dispatch\Stack;
+use Equip\Dispatch\MiddlewarePipe;
 
 // Any implementation of PSR-15 ServerMiddlewareInterface
 $middleware = [
@@ -44,15 +44,15 @@ $middleware = [
     // ...
 ];
 
-// Default handler for end of stack
+// Default handler for end of pipe
 $default = function (RequestInterface $request) {
     // Any implementation of PSR-7 ResponseInterface
     return new Response();
 };
 
-$stack = new Stack($middleware);
+$pipe = new MiddlewarePipe($middleware);
 
 // Any implementation of PSR-7 ServerRequestInterface
 $request = ServerRequest::fromGlobals();
-$response = $stack->dispatch($request, $default);
+$response = $pipe->dispatch($request, $default);
 ```

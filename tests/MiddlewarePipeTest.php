@@ -9,7 +9,7 @@ use PHPUnit_Framework_TestCase as TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class StackTest extends TestCase
+class MiddlewarePipeTest extends TestCase
 {
     public function testDefault()
     {
@@ -18,8 +18,8 @@ class StackTest extends TestCase
         $default = $this->defaultReturnsResponse($response);
 
         // Run
-        $stack = new Stack();
-        $output = $stack->dispatch($request, $default);
+        $pipe = new MiddlewarePipe();
+        $output = $pipe->dispatch($request, $default);
 
         // Verify
         $this->assertSame($response, $output);
@@ -51,8 +51,8 @@ class StackTest extends TestCase
         }, $mocks);
 
         // Run
-        $stack = new Stack($middleware);
-        $output = $stack->dispatch($request, $default);
+        $pipe = new MiddlewarePipe($middleware);
+        $output = $pipe->dispatch($request, $default);
 
         // Verify
         Phony::inOrder(
@@ -73,27 +73,27 @@ class StackTest extends TestCase
         $three = Phony::mock(ServerMiddlewareInterface::class)->get();
 
         // Run
-        $stack = new Stack([$one]);
-        $accessible_stack = Liberator::liberate($stack);
+        $pipe = new MiddlewarePipe([$one]);
+        $accessible_pipe = Liberator::liberate($pipe);
 
         // Verify
-        $this->assertCount(1, $accessible_stack->middleware);
-        $this->assertSame([$one], $accessible_stack->middleware);
+        $this->assertCount(1, $accessible_pipe->middleware);
+        $this->assertSame([$one], $accessible_pipe->middleware);
 
         // Add another middleware to the end
-        $stack->append($two);
+        $pipe->append($two);
 
         // Verify
-        $this->assertSame([$one, $two], $accessible_stack->middleware);
+        $this->assertSame([$one, $two], $accessible_pipe->middleware);
 
         // Add another middleware to the beginning
-        $stack->prepend($three);
+        $pipe->prepend($three);
 
         // Verify
-        $this->assertSame([$three, $one, $two], $accessible_stack->middleware);
+        $this->assertSame([$three, $one, $two], $accessible_pipe->middleware);
     }
 
-    public function testStackAsMiddleware()
+    public function testMiddlewarePipeAsMiddleware()
     {
         $request = $this->mockRequest();
         $response = $this->mockResponse();
@@ -121,10 +121,10 @@ class StackTest extends TestCase
             return $middleware->get();
         }, $mocks);
 
-        $stack = new Stack([
+        $pipe = new MiddlewarePipe([
             $middleware[0],
             $middleware[1],
-            new Stack([
+            new MiddlewarePipe([
                 $middleware[2],
                 $middleware[3],
             ]),
@@ -133,7 +133,7 @@ class StackTest extends TestCase
         ]);
 
         // Run
-        $output = $stack->dispatch($request, $default);
+        $output = $pipe->dispatch($request, $default);
 
         // Verify
         Phony::inOrder(
