@@ -5,7 +5,6 @@ namespace Equip\Dispatch;
 use Eloquent\Liberator\Liberator;
 use Eloquent\Phony\Phpunit\Phony;
 use Interop\Http\Middleware\ServerMiddlewareInterface;
-use PHPUnit_Framework_TestCase as TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -17,41 +16,98 @@ class MiddlewarePipeTest extends TestCase
         $response = $this->mockResponse();
         $default = $this->defaultReturnsResponse($response);
 
+        // No middleware should only execute the default
+        $middleware = [];
+
         // Run
-        $pipe = new MiddlewarePipe();
+        $pipe = new MiddlewarePipe($middleware);
         $output = $pipe->dispatch($request, $default);
 
         // Verify
         $this->assertSame($response, $output);
     }
 
-    public function testMiddleware()
+    public function testConstructorAppends()
+    {
+        $middleware = $this->realizeMocks([
+            $this->mockMiddleware(),
+            $this->mockMiddleware(),
+        ]);
+
+        // Run
+        $pipe = new MiddlewarePipe($middleware);
+        $accessiblePipe = Liberator::liberate($pipe);
+
+        // Verify
+        $this->assertSame($middleware, $accessiblePipe->middleware);
+    }
+
+    public function testAppend()
+    {
+        list($first, $second) = $this->realizeMocks([
+            $this->mockMiddleware(),
+            $this->mockMiddleware(),
+        ]);
+
+        // Run
+        $pipe = new MiddlewarePipe([$first]);
+        $accessiblePipe = Liberator::liberate($pipe);
+
+        // Verify
+        $this->assertSame([$first], $accessiblePipe->middleware);
+
+        // Modify
+        $pipe->append($second);
+
+        // Verify
+        $this->assertSame([$first, $second], $accessiblePipe->middleware);
+    }
+
+    public function testPrepend()
+    {
+        list($first, $second) = $this->realizeMocks([
+            $this->mockMiddleware(),
+            $this->mockMiddleware(),
+        ]);
+
+        // Run
+        $pipe = new MiddlewarePipe([$first]);
+        $accessiblePipe = Liberator::liberate($pipe);
+
+        // Verify
+        $this->assertSame([$first], $accessiblePipe->middleware);
+
+        // Modify
+        $pipe->prepend($second);
+
+        // Verify
+        $this->assertSame([$second, $first], $accessiblePipe->middleware);
+    }
+
+    public function testDispatch()
     {
         $request = $this->mockRequest();
         $response = $this->mockResponse();
         $default = $this->defaultReturnsResponse($response);
 
-        // Add process() implementation to middleware mocks
-        $process = function ($request, $delegate) {
-            return $delegate->process($request);
-        };
+        $mocks = [
+            $this->mockMiddleware(),
+            $this->mockMiddleware(),
+            $this->mockMiddleware(),
+        ];
 
-        $mocks = array_map(function ($mock) use ($process) {
-            $mock->process->does($process);
-            return $mock;
-        }, [
-            Phony::mock(ServerMiddlewareInterface::class),
-            Phony::mock(ServerMiddlewareInterface::class),
-            Phony::mock(ServerMiddlewareInterface::class),
-        ]);
-
-        // Realize middleware mocks
-        $middleware = array_map(function ($middleware) {
-            return $middleware->get();
-        }, $mocks);
+        $middleware = $this->realizeMocks($mocks);
 
         // Run
-        $pipe = new MiddlewarePipe($middleware);
+        $pipe = new MiddlewarePipe([
+            $middleware[0],
+            // Pipes can be nested
+            new MiddlewarePipe([
+                $middleware[1],
+            ]),
+            $middleware[2],
+        ]);
+
         $output = $pipe->dispatch($request, $default);
 
         // Verify
@@ -60,117 +116,7 @@ class MiddlewarePipeTest extends TestCase
             $mocks[1]->process->calledWith($request, '~'),
             $mocks[2]->process->calledWith($request, '~')
         );
-    }
 
-    public function testAppendAndPrepend()
-    {
-        $request = $this->mockRequest();
-        $response = $this->mockResponse();
-        $default = $this->defaultReturnsResponse($response);
-
-        $one = Phony::mock(ServerMiddlewareInterface::class)->get();
-        $two = Phony::mock(ServerMiddlewareInterface::class)->get();
-        $three = Phony::mock(ServerMiddlewareInterface::class)->get();
-
-        // Run
-        $pipe = new MiddlewarePipe([$one]);
-        $accessible_pipe = Liberator::liberate($pipe);
-
-        // Verify
-        $this->assertCount(1, $accessible_pipe->middleware);
-        $this->assertSame([$one], $accessible_pipe->middleware);
-
-        // Add another middleware to the end
-        $pipe->append($two);
-
-        // Verify
-        $this->assertSame([$one, $two], $accessible_pipe->middleware);
-
-        // Add another middleware to the beginning
-        $pipe->prepend($three);
-
-        // Verify
-        $this->assertSame([$three, $one, $two], $accessible_pipe->middleware);
-    }
-
-    public function testMiddlewarePipeAsMiddleware()
-    {
-        $request = $this->mockRequest();
-        $response = $this->mockResponse();
-        $default = $this->defaultReturnsResponse($response);
-
-        // Add process() implementation to middleware mocks
-        $process = function ($request, $delegate) {
-            return $delegate->process($request);
-        };
-
-        $mocks = array_map(function ($mock) use ($process) {
-            $mock->process->does($process);
-            return $mock;
-        }, [
-            Phony::mock(ServerMiddlewareInterface::class),
-            Phony::mock(ServerMiddlewareInterface::class),
-            Phony::mock(ServerMiddlewareInterface::class),
-            Phony::mock(ServerMiddlewareInterface::class),
-            Phony::mock(ServerMiddlewareInterface::class),
-            Phony::mock(ServerMiddlewareInterface::class),
-        ]);
-
-        // Realize middleware mocks
-        $middleware = array_map(function ($middleware) {
-            return $middleware->get();
-        }, $mocks);
-
-        $pipe = new MiddlewarePipe([
-            $middleware[0],
-            $middleware[1],
-            new MiddlewarePipe([
-                $middleware[2],
-                $middleware[3],
-            ]),
-            $middleware[4],
-            $middleware[5],
-        ]);
-
-        // Run
-        $output = $pipe->dispatch($request, $default);
-
-        // Verify
-        Phony::inOrder(
-            $mocks[0]->process->calledWith($request, '~'),
-            $mocks[1]->process->calledWith($request, '~'),
-            $mocks[2]->process->calledWith($request, '~'),
-            $mocks[3]->process->calledWith($request, '~'),
-            $mocks[4]->process->calledWith($request, '~'),
-            $mocks[5]->process->calledWith($request, '~')
-        );
-    }
-
-    /**
-     * @return ServerRequestInterface
-     */
-    private function mockRequest()
-    {
-        return Phony::mock(ServerRequestInterface::class)->get();
-    }
-
-    /**
-     * @return ResponseInterface
-     */
-    private function mockResponse()
-    {
-        return Phony::mock(ResponseInterface::class)->get();
-    }
-
-    /**
-     * @param ResponseInterface $response
-     *
-     * @return callable
-     */
-    private function defaultReturnsResponse(ResponseInterface $response)
-    {
-        return function (ServerRequestInterface $request) use ($response) {
-            return $response;
-        };
+        $this->assertSame($response, $output);
     }
 }
