@@ -4,9 +4,6 @@ namespace Equip\Dispatch;
 
 use Eloquent\Liberator\Liberator;
 use Eloquent\Phony\Phpunit\Phony;
-use Interop\Http\Middleware\ServerMiddlewareInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 class MiddlewarePipeTest extends TestCase
 {

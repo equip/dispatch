@@ -3,8 +3,6 @@
 namespace Equip\Dispatch;
 
 use Eloquent\Phony\Phpunit\Phony;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 class DelegateTest extends TestCase
 {
