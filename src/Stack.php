@@ -2,11 +2,12 @@
 
 namespace Equip\Dispatch;
 
+use Interop\Http\Middleware\DelegateInterface;
 use Interop\Http\Middleware\ServerMiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class Stack
+class Stack implements ServerMiddlewareInterface
 {
     /**
      * @var array
@@ -43,6 +44,22 @@ class Stack
     public function prepend(ServerMiddlewareInterface $middleware)
     {
         array_unshift($this->middleware, $middleware);
+    }
+
+    /**
+     * Process an incoming server request and return a response, optionally delegating
+     * to the next middleware component to create the response.
+     *
+     * @param ServerRequestInterface $request
+     * @param DelegateInterface $nextContainerDelegate
+     *
+     * @return ResponseInterface
+     */
+    public function process(ServerRequestInterface $request, DelegateInterface $nextContainerDelegate)
+    {
+        $delegate = new Delegate($this->middleware, new DelegateToCallableAdapter($nextContainerDelegate));
+
+        return $delegate->process($request);
     }
 
     /**
