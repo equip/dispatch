@@ -23,8 +23,8 @@ composer require equip/dispatch
 
 ## Usage
 
-The `MiddlewarePipe` is a container for middleware that acts as the entry point. It takes
-two arguments:
+The `MiddlewarePipe` is a container for middleware that acts as the entry point.
+It takes two arguments:
 
 - An array of `$middleware` which must be instances of server middleware.
 - A callable `$default` that acts as the terminator for the pipe and returns
@@ -54,5 +54,34 @@ $pipe = new MiddlewarePipe($middleware);
 
 // Any implementation of PSR-7 ServerRequestInterface
 $request = ServerRequest::fromGlobals();
+$response = $pipe->dispatch($request, $default);
+```
+
+### Nested Pipes
+
+The `MiddlewarePipe` also implements the `ServerMiddlewareInterface` to allow
+pipes to be nested:
+
+```php
+use Equip\Dispatch\MiddlewarePipe;
+
+// Any implementation of PSR-15 ServerMiddlewareInterface
+$middleware = [
+    new FooMiddleware(),
+
+    // A nested pipe
+    new MiddlewarePipe(...),
+
+    // More middleware
+    new BarMiddleware(),
+    // ...
+];
+
+$pipe = new MiddlewarePipe($middleware);
+
+// HTTP factories can also be used
+$default = [$responseFactory, 'createResponse'];
+$request = $serverRequestFactory->createRequest($_SERVER);
+
 $response = $pipe->dispatch($request, $default);
 ```
