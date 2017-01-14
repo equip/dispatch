@@ -2,9 +2,9 @@
 
 namespace Equip\Dispatch;
 
-use Interop\Http\Middleware\DelegateInterface;
-use Psr\Http\Message\RequestInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class DelegateProxy
 {
@@ -28,7 +28,7 @@ class DelegateProxy
      *
      * @return ResponseInterface
      */
-    public function __invoke(RequestInterface $request)
+    public function __invoke(ServerRequestInterface $request)
     {
         return $this->adaptee->process($request);
     }

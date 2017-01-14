@@ -9,7 +9,8 @@ Equip Dispatch
 
 An HTTP Interop compatible middleware dispatcher in [Equip](http://equip.github.io/).
 Attempts to be [PSR-1](http://www.php-fig.org/psr/psr-1/), [PSR-2](http://www.php-fig.org/psr/psr-2/),
-[PSR-4](http://www.php-fig.org/psr/psr-4/), and [PSR-7](http://www.php-fig.org/psr/psr-7/) compliant.
+[PSR-4](http://www.php-fig.org/psr/psr-4/), [PSR-7](http://www.php-fig.org/psr/psr-7/),
+and [PSR-15](http://www.php-fig.org/psr/psr-15/) compliant.
 
 Heavily influenced by the design of [Tari by ircmaxwell](https://github.com/ircmaxell/Tari-PHP).
 
@@ -38,14 +39,14 @@ the response for output.
 ```php
 use Equip\Dispatch\MiddlewarePipe;
 
-// Any implementation of PSR-15 ServerMiddlewareInterface
+// Any implementation of PSR-15 MiddlewareInterface
 $middleware = [
     new FooMiddleware(),
     // ...
 ];
 
 // Default handler for end of pipe
-$default = function (RequestInterface $request) {
+$default = function (ServerRequestInterface $request) {
     // Any implementation of PSR-7 ResponseInterface
     return new Response();
 };
@@ -59,13 +60,13 @@ $response = $pipe->dispatch($request, $default);
 
 ### Nested Pipes
 
-The `MiddlewarePipe` also implements the `ServerMiddlewareInterface` to allow
+The `MiddlewarePipe` also implements the `MiddlewareInterface` to allow
 pipes to be nested:
 
 ```php
 use Equip\Dispatch\MiddlewarePipe;
 
-// Any implementation of PSR-15 ServerMiddlewareInterface
+// Any implementation of PSR-15 MiddlewareInterface
 $middleware = [
     new FooMiddleware(),
 
