@@ -2,12 +2,12 @@
 
 namespace Equip\Dispatch;
 
-use Interop\Http\Middleware\DelegateInterface;
-use Interop\Http\Middleware\ServerMiddlewareInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class MiddlewarePipe implements ServerMiddlewareInterface
+class MiddlewarePipe implements MiddlewareInterface
 {
     /**
      * @var array
@@ -25,11 +25,11 @@ class MiddlewarePipe implements ServerMiddlewareInterface
     /**
      * Add a middleware to the end of the stack.
      *
-     * @param ServerMiddlewareInterface $middleware
+     * @param MiddlewareInterface $middleware
      *
      * @return void
      */
-    public function append(ServerMiddlewareInterface $middleware)
+    public function append(MiddlewareInterface $middleware)
     {
         array_push($this->middleware, $middleware);
     }
@@ -37,11 +37,11 @@ class MiddlewarePipe implements ServerMiddlewareInterface
     /**
      * Add a middleware to the beginning of the stack.
      *
-     * @param ServerMiddlewareInterface $middleware
+     * @param MiddlewareInterface $middleware
      *
      * @return void
      */
-    public function prepend(ServerMiddlewareInterface $middleware)
+    public function prepend(MiddlewareInterface $middleware)
     {
         array_unshift($this->middleware, $middleware);
     }

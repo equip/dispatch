@@ -2,9 +2,9 @@
 
 namespace Equip\Dispatch;
 
-use Interop\Http\Middleware\DelegateInterface;
-use Psr\Http\Message\RequestInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Delegate implements DelegateInterface
 {
@@ -40,7 +40,7 @@ class Delegate implements DelegateInterface
      *
      * @return ResponseInterface
      */
-    public function process(RequestInterface $request)
+    public function process(ServerRequestInterface $request)
     {
         if (empty($this->middleware[$this->index])) {
             return call_user_func($this->default, $request);

@@ -3,8 +3,8 @@
 namespace Equip\Dispatch;
 
 use Eloquent\Phony\Phpunit\Phony;
-use Interop\Http\Middleware\DelegateInterface;
-use Psr\Http\Message\RequestInterface;
+use Interop\Http\ServerMiddleware\DelegateInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class DelegateProxyTest extends TestCase
 {
@@ -15,7 +15,7 @@ class DelegateProxyTest extends TestCase
 
         $delegate = Phony::mock(DelegateInterface::class);
 
-        $delegate->process->does(function (RequestInterface $request) use ($response) {
+        $delegate->process->does(function (ServerRequestInterface $request) use ($response) {
             return $response;
         });
 
