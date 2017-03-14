@@ -10,6 +10,18 @@ use Psr\Http\Message\ServerRequestInterface;
 class MiddlewarePipe implements MiddlewareInterface
 {
     /**
+     * Create a new dispatcher.
+     *
+     * @param array $middleware
+     *
+     * @return static
+     */
+    public static function make(array $middleware = [])
+    {
+        return new static($middleware);
+    }
+
+    /**
      * @var array
      */
     private $middleware = [];
