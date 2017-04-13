@@ -9,6 +9,9 @@ class MiddlewareCollectionTest extends TestCase
 {
     public function testMake()
     {
+        $collection = MiddlewareCollection::make();
+
+        $this->assertInstanceOf(MiddlewareCollection::class, $collection);
     }
 
     public function testDefault()
