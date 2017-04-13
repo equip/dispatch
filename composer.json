@@ -27,5 +27,8 @@
         "psr-4": {
             "Equip\\Dispatch\\": "tests/"
         }
+    },
+    "scripts": {
+        "test": "phpunit"
     }
 }
