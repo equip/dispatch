@@ -24,20 +24,20 @@ composer require equip/dispatch
 
 ## Usage
 
-The `MiddlewarePipe` is a container for middleware that acts as the entry point.
+The `MiddlewareCollection` is a container for middleware that acts as the entry point.
 It takes two arguments:
 
 - An array of `$middleware` which must be instances of server middleware.
-- A callable `$default` that acts as the terminator for the pipe and returns
+- A callable `$default` that acts as the terminator for the collection and returns
   an empty response.
 
-Once the pipe is prepared it can dispatched with a server request and will return
+Once the collection is prepared it can dispatched with a server request and will return
 the response for output.
 
 ### Example
 
 ```php
-use Equip\Dispatch\MiddlewarePipe;
+use Equip\Dispatch\MiddlewareCollection;
 
 // Any implementation of PSR-15 MiddlewareInterface
 $middleware = [
@@ -45,44 +45,44 @@ $middleware = [
     // ...
 ];
 
-// Default handler for end of pipe
+// Default handler for end of collection
 $default = function (ServerRequestInterface $request) {
     // Any implementation of PSR-7 ResponseInterface
     return new Response();
 };
 
-$pipe = new MiddlewarePipe($middleware);
+$collection = new MiddlewareCollection($middleware);
 
 // Any implementation of PSR-7 ServerRequestInterface
 $request = ServerRequest::fromGlobals();
-$response = $pipe->dispatch($request, $default);
+$response = $collection->dispatch($request, $default);
 ```
 
-### Nested Pipes
+### Nested Collections
 
-The `MiddlewarePipe` also implements the `MiddlewareInterface` to allow
-pipes to be nested:
+The `MiddlewareCollection` also implements the `MiddlewareInterface` to allow
+collections to be nested:
 
 ```php
-use Equip\Dispatch\MiddlewarePipe;
+use Equip\Dispatch\MiddlewareCollection;
 
 // Any implementation of PSR-15 MiddlewareInterface
 $middleware = [
     new FooMiddleware(),
 
-    // A nested pipe
-    new MiddlewarePipe(...),
+    // A nested collection
+    new MiddlewareCollection(...),
 
     // More middleware
     new BarMiddleware(),
     // ...
 ];
 
-$pipe = new MiddlewarePipe($middleware);
+$collection = new MiddlewareCollection($middleware);
 
 // HTTP factories can also be used
 $default = [$responseFactory, 'createResponse'];
 $request = $serverRequestFactory->createRequest($_SERVER);
 
-$response = $pipe->dispatch($request, $default);
+$response = $collection->dispatch($request, $default);
 ```

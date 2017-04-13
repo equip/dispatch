@@ -5,8 +5,12 @@ namespace Equip\Dispatch;
 use Eloquent\Liberator\Liberator;
 use Eloquent\Phony\Phpunit\Phony;
 
-class MiddlewarePipeTest extends TestCase
+class MiddlewareCollectionTest extends TestCase
 {
+    public function testMake()
+    {
+    }
+
     public function testDefault()
     {
         $request = $this->mockRequest();
@@ -17,8 +21,8 @@ class MiddlewarePipeTest extends TestCase
         $middleware = [];
 
         // Run
-        $pipe = new MiddlewarePipe($middleware);
-        $output = $pipe->dispatch($request, $default);
+        $collection = new MiddlewareCollection($middleware);
+        $output = $collection->dispatch($request, $default);
 
         // Verify
         $this->assertSame($response, $output);
@@ -32,11 +36,11 @@ class MiddlewarePipeTest extends TestCase
         ]);
 
         // Run
-        $pipe = new MiddlewarePipe($middleware);
-        $accessiblePipe = Liberator::liberate($pipe);
+        $collection = new MiddlewareCollection($middleware);
+        $accessibleCollection = Liberator::liberate($collection);
 
         // Verify
-        $this->assertSame($middleware, $accessiblePipe->middleware);
+        $this->assertSame($middleware, $accessibleCollection->middleware);
     }
 
     public function testAppend()
@@ -47,17 +51,17 @@ class MiddlewarePipeTest extends TestCase
         ]);
 
         // Run
-        $pipe = new MiddlewarePipe([$first]);
-        $accessiblePipe = Liberator::liberate($pipe);
+        $collection = new MiddlewareCollection([$first]);
+        $accessibleCollection = Liberator::liberate($collection);
 
         // Verify
-        $this->assertSame([$first], $accessiblePipe->middleware);
+        $this->assertSame([$first], $accessibleCollection->middleware);
 
         // Modify
-        $pipe->append($second);
+        $collection->append($second);
 
         // Verify
-        $this->assertSame([$first, $second], $accessiblePipe->middleware);
+        $this->assertSame([$first, $second], $accessibleCollection->middleware);
     }
 
     public function testPrepend()
@@ -68,17 +72,17 @@ class MiddlewarePipeTest extends TestCase
         ]);
 
         // Run
-        $pipe = new MiddlewarePipe([$first]);
-        $accessiblePipe = Liberator::liberate($pipe);
+        $collection = new MiddlewareCollection([$first]);
+        $accessibleCollection = Liberator::liberate($collection);
 
         // Verify
-        $this->assertSame([$first], $accessiblePipe->middleware);
+        $this->assertSame([$first], $accessibleCollection->middleware);
 
         // Modify
-        $pipe->prepend($second);
+        $collection->prepend($second);
 
         // Verify
-        $this->assertSame([$second, $first], $accessiblePipe->middleware);
+        $this->assertSame([$second, $first], $accessibleCollection->middleware);
     }
 
     public function testDispatch()
@@ -96,16 +100,16 @@ class MiddlewarePipeTest extends TestCase
         $middleware = $this->realizeMocks($mocks);
 
         // Run
-        $pipe = new MiddlewarePipe([
+        $collection = new MiddlewareCollection([
             $middleware[0],
-            // Pipes can be nested
-            new MiddlewarePipe([
+            // Collections can be nested
+            new MiddlewareCollection([
                 $middleware[1],
             ]),
             $middleware[2],
         ]);
 
-        $output = $pipe->dispatch($request, $default);
+        $output = $collection->dispatch($request, $default);
 
         // Verify
         Phony::inOrder(
