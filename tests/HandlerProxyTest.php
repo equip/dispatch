@@ -3,29 +3,29 @@
 namespace Equip\Dispatch;
 
 use Eloquent\Phony\Phpunit\Phony;
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class DelegateProxyTest extends TestCase
+class HandlerProxyTest extends TestCase
 {
     public function testWrap()
     {
         $request = $this->mockRequest();
         $response = $this->mockResponse();
 
-        $delegate = Phony::mock(DelegateInterface::class);
+        $handler = Phony::mock(RequestHandlerInterface::class);
 
-        $delegate->process->does(function (ServerRequestInterface $request) use ($response) {
+        $handler->handle->does(function (ServerRequestInterface $request) use ($response) {
             return $response;
         });
 
         // Run
-        $proxy = new DelegateProxy($delegate->get());
+        $proxy = new HandlerProxy($handler->get());
         $output = $proxy($request);
 
         // Verify
         Phony::inOrder(
-            $delegate->process->calledWith($request)
+            $handler->handle->calledWith($request)
         );
 
         $this->assertTrue(is_callable($proxy));

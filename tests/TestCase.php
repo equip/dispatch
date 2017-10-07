@@ -2,10 +2,9 @@
 
 namespace Equip\Dispatch;
 
-use Eloquent\Liberator\Liberator;
 use Eloquent\Phony\Mock\Handle\InstanceHandle;
 use Eloquent\Phony\Phpunit\Phony;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Interop\Http\Server\MiddlewareInterface;
 use PHPUnit_Framework_TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -37,8 +36,8 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
     {
         $mock = Phony::mock(MiddlewareInterface::class);
 
-        $mock->process->does(static function ($request, $delegate) {
-            return $delegate->process($request);
+        $mock->process->does(static function ($request, $handler) {
+            return $handler->handle($request);
         });
 
         return $mock;

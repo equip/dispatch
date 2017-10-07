@@ -2,34 +2,34 @@
 
 namespace Equip\Dispatch;
 
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class DelegateProxy
+class HandlerProxy
 {
     /**
-     * @var DelegateInterface
+     * @var RequestHandlerInterface
      */
     private $adaptee;
 
     /**
-     * @param DelegateInterface $adaptee
+     * @param RequestHandlerInterface $adaptee
      */
-    public function __construct(DelegateInterface $adaptee)
+    public function __construct(RequestHandlerInterface $adaptee)
     {
         $this->adaptee = $adaptee;
     }
 
     /**
-     * Process the request using a delegate.
+     * Process the request using a handler.
      *
-     * @param RequestInterface $request
+     * @param ServerRequestInterface $request
      *
      * @return ResponseInterface
      */
     public function __invoke(ServerRequestInterface $request)
     {
-        return $this->adaptee->process($request);
+        return $this->adaptee->handle($request);
     }
 }
