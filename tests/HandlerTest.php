@@ -4,7 +4,7 @@ namespace Equip\Dispatch;
 
 use Eloquent\Phony\Phpunit\Phony;
 
-class DelegateTest extends TestCase
+class HandlerTest extends TestCase
 {
     public function testDefault()
     {
@@ -16,8 +16,8 @@ class DelegateTest extends TestCase
         $middleware = [];
 
         // Run
-        $delegate = new Delegate($middleware, $default);
-        $output = $delegate->process($request);
+        $handler = new Handler($middleware, $default);
+        $output = $handler->handle($request);
 
         // Verify
         $this->assertSame($response, $output);
@@ -37,8 +37,8 @@ class DelegateTest extends TestCase
         $middleware = $this->realizeMocks($mocks);
 
         // Run
-        $delegate = new Delegate($middleware, $default);
-        $output = $delegate->process($request);
+        $handler = new Handler($middleware, $default);
+        $output = $handler->handle($request);
 
         // Verify
         Phony::inOrder(

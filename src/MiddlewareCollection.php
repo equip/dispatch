@@ -2,8 +2,8 @@
 
 namespace Equip\Dispatch;
 
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Interop\Http\Server\RequestHandlerInterface;
+use Interop\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -68,19 +68,19 @@ class MiddlewareCollection implements MiddlewareInterface
      */
     public function dispatch(ServerRequestInterface $request, callable $default)
     {
-        $delegate = new Delegate($this->middleware, $default);
+        $handler = new Handler($this->middleware, $default);
 
-        return $delegate->process($request);
+        return $handler->handle($request);
     }
 
     /**
      * @inheritdoc
      */
-    public function process(ServerRequestInterface $request, DelegateInterface $nextContainerDelegate)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $nextContainerHandler)
     {
-        $default = new DelegateProxy($nextContainerDelegate);
-        $delegate = new Delegate($this->middleware, $default);
+        $default = new HandlerProxy($nextContainerHandler);
+        $handler = new Handler($this->middleware, $default);
 
-        return $delegate->process($request);
+        return $handler->handle($request);
     }
 }

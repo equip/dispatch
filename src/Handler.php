@@ -2,11 +2,11 @@
 
 namespace Equip\Dispatch;
 
-use Interop\Http\ServerMiddleware\DelegateInterface;
+use Interop\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class Delegate implements DelegateInterface
+class Handler implements RequestHandlerInterface
 {
     /**
      * @var array
@@ -36,25 +36,25 @@ class Delegate implements DelegateInterface
     /**
      * Process the request using the current middleware.
      *
-     * @param RequestInterface $request
+     * @param ServerRequestInterface $request
      *
      * @return ResponseInterface
      */
-    public function process(ServerRequestInterface $request)
+    public function handle(ServerRequestInterface $request)
     {
         if (empty($this->middleware[$this->index])) {
             return call_user_func($this->default, $request);
         }
 
-        return $this->middleware[$this->index]->process($request, $this->nextDelegate());
+        return $this->middleware[$this->index]->process($request, $this->nextHandler());
     }
 
     /**
-     * Get a delegate pointing to the next middleware.
+     * Get a handler pointing to the next middleware.
      *
      * @return static
      */
-    private function nextDelegate()
+    private function nextHandler()
     {
         $copy = clone $this;
         $copy->index++;
