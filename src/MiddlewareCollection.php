@@ -76,7 +76,7 @@ class MiddlewareCollection implements MiddlewareInterface
     /**
      * @inheritdoc
      */
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $nextContainerHandler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $nextContainerHandler): ResponseInterface
     {
         $default = new HandlerProxy($nextContainerHandler);
         $handler = new Handler($this->middleware, $default);

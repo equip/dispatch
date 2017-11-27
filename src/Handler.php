@@ -40,7 +40,7 @@ class Handler implements RequestHandlerInterface
      *
      * @return ResponseInterface
      */
-    public function handle(ServerRequestInterface $request)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         if (empty($this->middleware[$this->index])) {
             return call_user_func($this->default, $request);
