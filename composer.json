@@ -14,7 +14,7 @@
         "http-interop/http-server-middleware": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^5.7|^6.0",
+        "phpunit/phpunit": "^5.7",
         "eloquent/phony": "^0.14.3",
         "eloquent/liberator": "^2.0"
     },
