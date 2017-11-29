@@ -33,13 +33,6 @@ class Handler implements RequestHandlerInterface
         $this->default = $default;
     }
 
-    /**
-     * Process the request using the current middleware.
-     *
-     * @param ServerRequestInterface $request
-     *
-     * @return ResponseInterface
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         if (empty($this->middleware[$this->index])) {
