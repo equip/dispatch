@@ -3,8 +3,8 @@
 namespace Equip\Dispatch;
 
 use Eloquent\Phony\Phpunit\Phony;
-use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class HandlerProxyTest extends TestCase
 {
