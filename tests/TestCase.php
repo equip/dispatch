@@ -4,12 +4,12 @@ namespace Equip\Dispatch;
 
 use Eloquent\Phony\Mock\Handle\InstanceHandle;
 use Eloquent\Phony\Phpunit\Phony;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase as AbstractTestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 
-abstract class TestCase extends PHPUnit_Framework_TestCase
+abstract class TestCase extends AbstractTestCase
 {
     /**
      * @return ServerRequestInterface
